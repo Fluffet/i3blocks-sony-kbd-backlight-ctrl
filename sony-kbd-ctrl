@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+#
+# Switches between the two keyboard modes, on or off. (0 or 1)
+# but also handles -1 as 1
+#
+
+with open("/sys/devices/platform/sony-laptop/kbd_backlight", "r+") as f:
+  val = f.read().strip()
+  new_val = "0" if val in "-1" else "1"
+  f.truncate()
+  f.write(new_val)
+  print(new_val)
