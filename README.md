@@ -2,10 +2,10 @@
 
 Simple script to control the backlight of your Sony Vaio Pro keyboard directly from i3bar/blocks. Handy if you like to code by night or watch movies :)
 
-You need write access for /sys/devices/platform/sony-laptop/kbd_backlight, so you need to do this once:
+You need write access for /sys/devices/platform/sony-laptop/kbd_backlight and /sys/devices/platform/sony-laptop/kbd_backlight_timeout so you need to do this once:
 
 ```sh
-sudo chmod o+w /sys/devices/platform/sony-laptop/kbd_backlight
+sudo chmod o+w /sys/devices/platform/sony-laptop/kbd_backlight /sys/devices/platform/sony-laptop/kbd_backlight_timeout
 ```
 
 i3blocks config:

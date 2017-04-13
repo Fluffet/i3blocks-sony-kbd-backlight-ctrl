@@ -1,12 +1,58 @@
 #!/usr/bin/env python3
-#
-# Switches between the two keyboard modes, on or off. (0 or 1)
-# but also handles -1 as 1
-#
 
-with open("/sys/devices/platform/sony-laptop/kbd_backlight", "r+") as f:
-  val = f.read().strip()
-  new_val = "0" if val in "-1" else "1"
-  f.truncate()
-  f.write(new_val)
-  print(new_val)
+def get_value_in_file(file):
+  return file.read().strip()
+
+def convert_timeout_value_to_seconds(timeout_value):
+  timeout_int = int(timeout_value)
+  if timeout_int == 0: return "inf"
+  if timeout_int == 1: return "10s"
+  if timeout_int == 2: return "30s"
+  if timeout_int == 3: return "60s"
+
+def set_kbd_timeout(timeout_file, val):
+  val = str(val)
+  timeout_file.seek(0)
+  timeout_file.truncate()
+  timeout_file.write(val)
+  return val
+
+def toggle_backlight(backlight_file):
+  backlight_file.seek(0)
+  val = backlight_file.read().strip()
+  kbd_backlight = "0" if val in "-1" else "1"
+  backlight_file.truncate()
+  backlight_file.write(kbd_backlight)
+  return kbd_backlight
+
+with open("/sys/devices/platform/sony-laptop/kbd_backlight", "r+") as backlight_file:
+  with open("/sys/devices/platform/sony-laptop/kbd_backlight_timeout", "r+") as timeout_file:
+    
+    timeout_value    = get_value_in_file(timeout_file)
+    backlight_value  = get_value_in_file(backlight_file)
+
+    
+    if backlight_value == "0":
+      backlight_value = toggle_backlight(backlight_file)
+
+    else:
+      # OS will throw an error if this is not 0,1,2,3
+      new_timeout_value =  int(timeout_value) + 1
+      if new_timeout_value == 4:
+        new_timeout_value = 0 
+        backlight_value = toggle_backlight(backlight_file)
+
+      timeout_value = set_kbd_timeout(timeout_file, new_timeout_value)
+
+
+    backlight_string = " " + backlight_value
+    timeout_string   = " "
+
+    if backlight_value == "0":
+      timeout_string += "dis"
+    else: 
+      timeout_string += convert_timeout_value_to_seconds(timeout_value)
+  
+
+    print(backlight_string + " " + timeout_string)
+
